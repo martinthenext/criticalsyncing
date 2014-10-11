@@ -9,6 +9,11 @@ class SourceTag(models.Model):
 
 
 class Source(models.Model):
+    POLITICAL_BIAS = (
+        ('L', 'Left wing'),
+        ('R', 'Right wing'),
+    )
+
     name = models.CharField(max_length=200,
                             unique=True,
                             blank=False)
@@ -16,6 +21,8 @@ class Source(models.Model):
                           unique=True,
                           blank=False)
     tag = models.ManyToManyField(SourceTag)
+    bias = models.CharField(max_length=1, choices=POLITICAL_BIAS)
+    haters = models.ManyToManyField("self") # symmetrical by default
 
 
 class Article(models.Model):
@@ -29,6 +36,7 @@ class Article(models.Model):
     summary = models.CharField(max_length=5000)
     authors = models.CharField(max_length=400)
     keywords = models.CharField(max_length=400)
-    source = models.ForeignKey(Source, blank=False)
+    source = models.ForeignKey(Source, blank=True)
 
     objects = ArticleDownloadManager()
+
