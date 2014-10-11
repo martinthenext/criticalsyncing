@@ -86,7 +86,5 @@ class ArticleDownloadManager(models.Manager):
         # First go though all the sources to build a dictionary
         texts = [a.get_text_to_vectorize() for a in self.model.objects.all()]
         vectorizer = TfidfVectorizer()
-        X = vectorizer.fit_transform(texts)
-        joblib.dump(X,'pickles/global_tfidf.pkl')
-        global_vocabulary = vectorizer.get_feature_names()
-        joblib.dump(global_vocabulary, 'pickles/global_vocabulary.pkl')
+        vectorizer.fit_transform(texts)
+        joblib.dump(vectorizer,'pickles/global_vectorizer.pkl')
