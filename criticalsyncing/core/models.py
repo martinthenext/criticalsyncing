@@ -6,6 +6,8 @@ class SourceTag(models.Model):
     name = models.CharField(max_length=50,
                             unique=True,
                             blank=False)
+    def __unicode__(self):
+        return self.name
 
 
 class Source(models.Model):
@@ -20,9 +22,11 @@ class Source(models.Model):
     url = models.URLField(max_length=200,
                           unique=True,
                           blank=False)
-    tag = models.ManyToManyField(SourceTag)
+    tag = models.ManyToManyField(SourceTag, blank=True)
     bias = models.CharField(max_length=1, choices=POLITICAL_BIAS)
-    haters = models.ManyToManyField("self") # symmetrical by default
+    haters = models.ManyToManyField("self", blank=True) # symmetrical by default
+    def __unicode__(self):
+        return self.name
 
 
 class Article(models.Model):
@@ -39,4 +43,6 @@ class Article(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
 
     objects = ArticleDownloadManager()
+    def __unicode__(self):
+        return self.title
 
