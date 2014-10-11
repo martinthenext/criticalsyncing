@@ -46,3 +46,6 @@ class Article(models.Model):
     def __unicode__(self):
         return self.title
 
+class Cache(models.Model):
+    input_url = models.URLField(max_length=200, unique=True)
+    output_url = models.URLField(max_length=200)
