@@ -20,6 +20,12 @@ if hasattr(settings, "NEWSPAPER_THREADS_COUNT"):
 NEWSPAPER_LANGAUGE = 'en'
 if hasattr(settings, "NEWSPAPER_LANGAUGE"):
     NEWSPAPER_LANGAUGE = settings.NEWSPAPER_LANGAUGE
+NEWSPAPER_MIN_ARTICLE_LENGTH = 200
+if hasattr(settings, "NEWSPAPER_MIN_ARTICLE_LENGTH"):
+    NEWSPAPER_MIN_ARTICLE_LENGTH = settings.NEWSPAPER_MIN_ARTICLE_LENGTH
+NEWSPAPER_MAX_ARTICLE_LENGTH = 600
+if hasattr(settings, "NEWSPAPER_MAX_ARTICLE_LENGTH"):
+    NEWSPAPER_MAX_ARTICLE_LENGTH = settings.NEWSPAPER_MAX_ARTICLE_LENGTH
 
 
 class ArticleDownloadManager(models.Manager):
@@ -40,6 +46,15 @@ class ArticleDownloadManager(models.Manager):
                 article.nlp()
             except Exception, error:
                 logger.exception(error)
+                continue
+
+            if len(article.text) < NEWSPAPER_MIN_ARTICLE_LENGTH:
+                logger.info("article '%s'(%s) is too short: %s",
+                            article.title, article.url, len(article.text))
+                continue
+            if len(article.text) > NEWSPAPER_MAX_ARTICLE_LENGTH:
+                logger.info("article '%s'(%s) is too long: %s",
+                            article.title, article.url, len(article.text))
                 continue
 
             record = self.model(url=article.url, title=article.title,
