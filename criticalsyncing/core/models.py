@@ -31,8 +31,7 @@ class Article(models.Model):
                           unique=True)
     title = models.CharField(max_length=200,
                              blank=False)
-    text = models.CharField(max_length=100000,
-                            blank=False)
+    text = models.TextField(blank=False)
     summary = models.CharField(max_length=5000)
     authors = models.CharField(max_length=400)
     keywords = models.CharField(max_length=400)
