@@ -3,6 +3,10 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 import json
 from logic import get_matching_url
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Index(View):
     template_name = "index.html"
@@ -29,6 +33,11 @@ class Index(View):
         input_url = request.POST.get("url")
         if not input_url:
             return self.error(request, "have no url")
-        output_url = get_matching_url(input_url)
-        # get new url
-        return self.redirect(request, output_url)
+        logger.info("input url: %s", input_url)
+        try:
+            output_url = get_matching_url(input_url)
+            logger.info("output url: %s", output_url)
+            return self.redirect(request, output_url)
+        except Exception, error:
+            logger.exception(error)
+            return self.error(request, str(error))
