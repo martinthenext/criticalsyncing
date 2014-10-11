@@ -6,6 +6,7 @@ class SourceTag(models.Model):
     name = models.CharField(max_length=50,
                             unique=True,
                             blank=False)
+
     def __unicode__(self):
         return self.name
 
@@ -23,8 +24,11 @@ class Source(models.Model):
                           unique=True,
                           blank=False)
     tag = models.ManyToManyField(SourceTag, blank=True)
-    bias = models.CharField(max_length=1, choices=POLITICAL_BIAS, blank=True, null=True)
-    haters = models.ManyToManyField("self", blank=True) # symmetrical by default
+    bias = models.CharField(max_length=1,
+                            choices=POLITICAL_BIAS,
+                            blank=True, null=True)
+    haters = models.ManyToManyField("self", blank=True)  # symmetrical by default
+
     def __unicode__(self):
         return self.name
 
@@ -41,10 +45,14 @@ class Article(models.Model):
     keywords = models.CharField(max_length=400, blank=True, null=True)
     source = models.ForeignKey(Source, blank=True)
     category = models.CharField(max_length=100, blank=True, null=True)
+    top_image_url = models.URLField(max_length=200, null=True, default=None)
+    all_images_urls = models.TextField(blank=True, null=True, default=None)
 
     objects = ArticleDownloadManager()
+
     def __unicode__(self):
         return self.title
+
 
 class Cache(models.Model):
     input_url = models.URLField(max_length=200, unique=True)
