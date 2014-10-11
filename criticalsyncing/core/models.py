@@ -23,7 +23,7 @@ class Source(models.Model):
                           unique=True,
                           blank=False)
     tag = models.ManyToManyField(SourceTag, blank=True)
-    bias = models.CharField(max_length=1, choices=POLITICAL_BIAS)
+    bias = models.CharField(max_length=1, choices=POLITICAL_BIAS, blank=True, null=True)
     haters = models.ManyToManyField("self", blank=True) # symmetrical by default
     def __unicode__(self):
         return self.name
