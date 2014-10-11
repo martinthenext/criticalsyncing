@@ -31,7 +31,7 @@ class ArticleDownloadManager(models.Manager):
                                 number_threads=NEWSPAPER_THREADS_COUNT,
                                 language=NEWSPAPER_LANGAUGE)
         logger.debug("paper %s size: %d", source.url, paper.size())
-        known = set(self.values_list("url", flat=True))
+        known = set(self.filter(source=source).values_list("url", flat=True))
         for article in filter(lambda a: a.url not in known,
                               paper.articles[:NEWSPAPER_MAX_ARTICLES]):
             try:
