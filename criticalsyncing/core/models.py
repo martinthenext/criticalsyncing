@@ -54,9 +54,12 @@ class Article(models.Model):
         return self.title
 
     def get_text_to_vectorize(self):
-        return self.keywords
+        return self.text
 
 
 class Cache(models.Model):
     input_url = models.URLField(max_length=200, unique=True)
     output_url = models.URLField(max_length=200)
+
+    def __unicode__(self):
+        return 'Cached for %s' % self.input_url 
