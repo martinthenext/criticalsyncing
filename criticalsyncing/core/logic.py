@@ -10,6 +10,9 @@ from .models import Source, SourceTag, Article
 from urlparse import urlparse
 import newspaper
 import logging
+from sklearn.feature_extraction.text import Tfidfvectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.externals import joblib
 
 logger = logging.getLogger(__name__)
 
@@ -75,3 +78,16 @@ def get_matching_url(input_url):
     article = get_article(input_url)
     sources = get_sources(article)
     return get_url_from_sources(sources)
+
+
+def fetch_pickled_vectorizer():
+    # This should be replaced by something which we unpickled
+    return joblib.load('pickles/globaltfidf.pkl')
+
+def return_matching_document_index(text, tf_idf_matrix):
+    vectorizer =  fetch_pickled_vectorizer()
+    transformed = vectorizer.transform(text)
+    similarity = cosine_similarity(transformed[0:1], tf_idf_matrix)
+    return similarity.index(max(similarity))
+
+
