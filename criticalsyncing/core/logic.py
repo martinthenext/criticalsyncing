@@ -84,7 +84,7 @@ def fetch_pickled_tfidf(source = None):
     # This should be replaced by something which we unpickled
     return joblib.load(pickle_file)
 
-def return_matching_document_index(text, sources):  
+def get_matching_article(text, sources):  
     vectorizer =  joblib.load("pickles/vectorizer_global.pkl")  
     transformed = vectorizer.transform([text])
     if sources is None:
@@ -111,4 +111,6 @@ def find_max_similarity(transformed, source=None):
 def get_matching_url(input_url):
     article = get_article(input_url)
     sources = get_sources(article)
-    return get_url_from_sources(sources)
+    matching_article = get_matching_article(' '.join(article.keywords), sources)
+
+    return matching_article.url
