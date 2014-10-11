@@ -63,7 +63,11 @@ def get_article(input_url):
         article = newspaper.Article(url=input_url)
         article.download()
         article.parse()
+        original = article.text
+        # fix https://github.com/codelucas/newspaper/issues/77
+        article.text = original.encode(errors='replace')
         article.nlp()
+        article.text = original
         logger.info("keywords: %s", article.keywords)
     except Exception, error:
         logger.exception(error)
