@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+  </head>
+  <body>
+    <form method="post">
+	{% if error %}
+	<p>{{error}}</p>
+	{% endif %}
+	<input name="url" type="text" placeholder="paste url here">
+	{% csrf_token %}
+	<input name="sync" type="submit" value="sync">
+    </form>
+  </body>
+</html>
