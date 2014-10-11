@@ -32,10 +32,11 @@ class Article(models.Model):
     title = models.CharField(max_length=200,
                              blank=False)
     text = models.TextField(blank=False)
-    summary = models.CharField(max_length=5000)
-    authors = models.CharField(max_length=400)
-    keywords = models.CharField(max_length=400)
+    summary = models.TextField(blank=True, null=True)
+    authors = models.CharField(max_length=400, blank=True, null=True)
+    keywords = models.CharField(max_length=400, blank=True, null=True)
     source = models.ForeignKey(Source, blank=True)
+    category = models.CharField(max_length=100, blank=True, null=True)
 
     objects = ArticleDownloadManager()
 
