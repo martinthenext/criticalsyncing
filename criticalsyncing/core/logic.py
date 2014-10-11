@@ -80,14 +80,13 @@ def fetch_pickled_tfidf(source = None):
         pickle_file = "pickles/tfidf_global.pkl"
     else:
         pickle_file = "pickles/tfidf_" + str(source.id) + ".pkl"
-        
 
     # This should be replaced by something which we unpickled
     return joblib.load(pickle_file)
 
 def return_matching_document_index(text, sources):  
     vectorizer =  joblib.load("pickles/vectorizer_global.pkl")  
-    transformed = vectorizer.transform(text)
+    transformed = vectorizer.transform([text])
     if sources is None:
         _, best_article_index = find_max_similarity(transformed)
         return list(Article.objects.all())[best_article_index]
@@ -95,7 +94,7 @@ def return_matching_document_index(text, sources):
         similarities = []
         for source in sources:
             similarity, similarity_index = find_max_similarity(transformed,source)
-            similarities.append(similarity, similarity_index, source.id)    
+            similarities.append([similarity, similarity_index, source.id])    
         similarities = sorted(similarities, key = operator.itemgetter(0))
         _, best_index, best_source = similarities[-1]
         return list(Source.objects.get(id=best_source).article_set.all())[best_index]
@@ -103,7 +102,8 @@ def return_matching_document_index(text, sources):
 
 def find_max_similarity(transformed, source=None):
      similarity = cosine_similarity(transformed, fetch_pickled_tfidf(source))
-     similarity_ranked = sorted(enumerate(similarity), key=lambda x: x[1], inverse=True)
+     similarity = similarity.flatten()
+     similarity_ranked = sorted(enumerate(similarity), key=lambda x: x[1], reverse=True)
      best_match_index, best_match = filter(lambda x: x[1]!=1, similarity_ranked)[0]
      return best_match, best_match_index
 
