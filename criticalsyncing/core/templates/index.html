@@ -9,7 +9,52 @@
 	<title>Title Goes Here</title>
 	<link rel="stylesheet" type="/static/text/css" href="http://davtyan.org/cs/style_sheet.css">
 
+	<script>
+		function addEvent( obj, type, fn ) {
+	 
+	  if ( obj.attachEvent ) {
+	 
+	    obj['e'+type+fn] = fn;
+	 
+	    obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
+	 
+	    obj.attachEvent( 'on'+type, obj[type+fn] );
+	 
+	  } else
+	 
+	    obj.addEventListener( type, fn, false );
+	 
+		}
+
+
+		var looper;
+var degrees = 0;
+function rotateAnimation(el,speed){
+	var elem = document.getElementById(el);
+	if(navigator.userAgent.match("Chrome")){
+		elem.style.WebkitTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("Firefox")){
+		elem.style.MozTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("MSIE")){
+		elem.style.msTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("Opera")){
+		elem.style.OTransform = "rotate("+degrees+"deg)";
+	} else {
+		elem.style.transform = "rotate("+degrees+"deg)";
+	}
+	looper = setTimeout('rotateAnimation(\''+el+'\','+speed+')',speed);
+	degrees++;
+	if(degrees > 359){
+		degrees = 1;
+	}
+	document.getElementById("status").innerHTML = "rotate("+degrees+"deg)";
+}
+	 
+	</script>
+
 </head>
+
+
 
 <body>
 
@@ -21,7 +66,7 @@
 <div class="container">
 	<div id ="lol-whut">
 		<div id="rotate-z" class="logo-container">
-			<img src="http://davtyan.org/cs/logo.gif" class="logo">
+			<img src="http://davtyan.org/cs/logo.gif" class="logo" id="logoname">
 		</div>
 	</div>
 	<div class="search-container">
@@ -38,6 +83,18 @@
 </div>
 
 <div id="footer">Critical Syncing 2014</div>
+
+
+	<script>
+	addEvent(document.getElementById('search'), 'paste', function(event) {
+	 
+	    document.getElementById("logoname").className = "logo_rotate"
+	    document.forms["search"].submit();
+	 
+	});
+
+	</script>
+
 
 </body>
 </html>
