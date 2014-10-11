@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.utils import IntegrityError
 from django.conf import settings
 import newspaper
 import json
@@ -23,7 +24,7 @@ if hasattr(settings, "NEWSPAPER_LANGAUGE"):
 NEWSPAPER_MIN_ARTICLE_LENGTH = 200
 if hasattr(settings, "NEWSPAPER_MIN_ARTICLE_LENGTH"):
     NEWSPAPER_MIN_ARTICLE_LENGTH = settings.NEWSPAPER_MIN_ARTICLE_LENGTH
-NEWSPAPER_MAX_ARTICLE_LENGTH = 600
+NEWSPAPER_MAX_ARTICLE_LENGTH = 200000
 if hasattr(settings, "NEWSPAPER_MAX_ARTICLE_LENGTH"):
     NEWSPAPER_MAX_ARTICLE_LENGTH = settings.NEWSPAPER_MAX_ARTICLE_LENGTH
 
@@ -37,13 +38,19 @@ class ArticleDownloadManager(models.Manager):
                                 number_threads=NEWSPAPER_THREADS_COUNT,
                                 language=NEWSPAPER_LANGAUGE)
         logger.debug("paper %s size: %d", source.url, paper.size())
-        known = set(self.filter(source=source).values_list("url", flat=True))
-        for article in filter(lambda a: a.url not in known,
-                              paper.articles[:NEWSPAPER_MAX_ARTICLES]):
+        articles = paper.articles[:NEWSPAPER_MAX_ARTICLES]
+        fetched_urls = [a.url for a in articles]
+        known_urls = self.filter(source=source).values_list("url", flat=True)
+        unknown_urls = set(fetched_urls) - set(known_urls)
+        for article in filter(lambda a: a.url in unknown_urls, articles):
             try:
                 article.download()
                 article.parse()
+                original = article.text
+                # fix https://github.com/codelucas/newspaper/issues/77
+                article.text = original.encode(errors='replace')
                 article.nlp()
+                article.text = original
             except Exception, error:
                 logger.exception(error)
                 continue
@@ -62,5 +69,9 @@ class ArticleDownloadManager(models.Manager):
                                 source=source,
                                 keywords=json.dumps(article.keywords),
                                 authors=json.dumps(article.authors))
-            record.save()
-            logger.info("article %s(%s) is added", record.title, record.url)
+            try:
+                record.save()
+                logger.info("article %s(%s) is added", record.title, record.url)
+            except IntegrityError, error:
+                logger.exception(error)
+                continue
