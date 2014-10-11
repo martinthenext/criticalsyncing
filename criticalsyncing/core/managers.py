@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 import newspaper
+import json
 import logging
 
 
@@ -42,26 +43,9 @@ class ArticleDownloadManager(models.Manager):
                 continue
 
             record = self.model(url=article.url, title=article.title,
-                                text=article.title, summary=article.summary)
-            record.save()
-
-            for keyword_ in article.keywords:
-                from .models import ArticleKeyword
-                keyword, isnew = \
-                    ArticleKeyword.objects.get_or_create(name=keyword_)
-                if isnew:
-                    logger.info("new keyword: %s", keyword.name)
-                    keyword.save()
-                record.keywords.add(keyword)
-
-            for author_ in article.authors:
-                from .models import ArticleAuthor
-                author, isnew = \
-                    ArticleAuthor.objects.get_or_create(name=author_)
-                if isnew:
-                    logger.info("new author: %s", author.name)
-                    author.save()
-                record.authors.add(author)
-
+                                text=article.text, summary=article.summary,
+                                source=source,
+                                keywords=json.dumps(article.keywords),
+                                authors=json.dumps(article.authors))
             record.save()
             logger.info("article %s(%s) is added", record.title, record.url)

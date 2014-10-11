@@ -13,20 +13,9 @@ class Source(models.Model):
                             unique=True,
                             blank=False)
     url = models.URLField(max_length=200,
+                          unique=True,
                           blank=False)
     tag = models.ManyToManyField(SourceTag)
-
-
-class ArticleKeyword(models.Model):
-    name = models.CharField(max_length=200,
-                            unique=True,
-                            blank=False)
-
-
-class ArticleAuthor(models.Model):
-    name = models.CharField(max_length=200,
-                            unique=True,
-                            blank=False)
 
 
 class Article(models.Model):
@@ -38,7 +27,8 @@ class Article(models.Model):
     text = models.CharField(max_length=100000,
                             blank=False)
     summary = models.CharField(max_length=5000)
-    authors = models.ManyToManyField(ArticleAuthor)
-    keywords = models.ManyToManyField(ArticleKeyword)
+    authors = models.CharField(max_length=400)
+    keywords = models.CharField(max_length=400)
+    source = models.ForeignKey(Source, blank=False)
 
     objects = ArticleDownloadManager()
