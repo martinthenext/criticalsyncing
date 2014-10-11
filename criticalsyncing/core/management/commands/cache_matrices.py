@@ -17,7 +17,7 @@ class Command(BaseCommand):
             texts = [a.get_text_to_vectorize() for a in s.article_set.all()]
             if len(texts) == 0:
                 continue
-            text_fit = vectorizer.fit_transform(texts)
+            text_fit = vectorizer.transform(texts)
             pickle_name = "pickles/tfidf_" + str(s.id) + ".pkl"
             joblib.dump(text_fit, pickle_name)
 
