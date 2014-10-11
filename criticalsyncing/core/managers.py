@@ -68,10 +68,13 @@ class ArticleDownloadManager(models.Manager):
                                 text=article.text, summary=article.summary,
                                 source=source,
                                 keywords=json.dumps(article.keywords),
-                                authors=json.dumps(article.authors))
+                                authors=json.dumps(article.authors),
+                                top_image_url=article.top_image,
+                                all_images_urls=json.dumps(article.images))
             try:
                 record.save()
-                logger.info("article %s(%s) is added", record.title, record.url)
+                logger.info("article %s(%s) is added",
+                            record.title, record.url)
             except IntegrityError, error:
                 logger.exception(error)
                 continue
