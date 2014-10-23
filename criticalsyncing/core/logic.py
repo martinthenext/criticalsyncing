@@ -14,6 +14,12 @@ import operator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.externals import joblib
+from django.conf import settings
+import os
+
+PICKLES_DIRECTORY = os.path.join(os.getcwd(), "pickles")
+if hasattr(settings, "PICKLES_DIRECTORY"):
+    PICKLES_DIRECTORY = settings.PICKLES_DIRECTORY
 
 logger = logging.getLogger(__name__)
 
@@ -79,17 +85,21 @@ def get_url_from_sources(sources):
     return Article.objects.filter(source__in=sources)[0].url
 
 
-def fetch_pickled_tfidf(source = None):
+def fetch_pickled_tfidf(source=None):
     if not source:
-        pickle_file = "pickles/tfidf_global.pkl"
+        pickle_file = os.path.join(
+            PICKLES_DIRECTORY, "tfidf_global.pkl")
     else:
-        pickle_file = "pickles/tfidf_" + str(source.id) + ".pkl"
+        pickle_file = os.path.join(
+            PICKLES_DIRECTORY, "tfidf_" + str(source.id) + ".pkl")
 
     # This should be replaced by something which we unpickled
     return joblib.load(pickle_file)
 
-def get_matching_article(text, sources):  
-    vectorizer =  joblib.load("pickles/vectorizer_global.pkl")  
+
+def get_matching_article(text, sources):
+    vectorizer = joblib.load(
+        os.path.join(PICKLES_DIRECTORY, "vectorizer_global.pkl"))
     transformed = vectorizer.transform([text])
     if sources is None:
         _, best_article_index = find_max_similarity(transformed)
@@ -97,24 +107,24 @@ def get_matching_article(text, sources):
     else:
         similarities = []
         for source in sources:
-            similarity, similarity_index = find_max_similarity(transformed,source)
-            similarities.append([similarity, similarity_index, source.id])    
-        similarities = sorted(similarities, key = operator.itemgetter(0))
+            similarity, similarity_index = \
+                find_max_similarity(transformed, source)
+            similarities.append([similarity, similarity_index, source.id])
+        similarities = sorted(similarities, key=operator.itemgetter(0))
         _, best_index, best_source = similarities[-1]
         return list(Source.objects.get(id=best_source).article_set.all())[best_index]
-        
+
 
 def find_max_similarity(transformed, source=None):
-     similarity = cosine_similarity(transformed, fetch_pickled_tfidf(source))
-     similarity = similarity.flatten()
-     similarity_ranked = sorted(enumerate(similarity), key=lambda x: x[1], reverse=True)
-     best_match_index, best_match = filter(lambda x: x[1]!=1, similarity_ranked)[0]
-     return best_match, best_match_index
+    similarity = cosine_similarity(transformed, fetch_pickled_tfidf(source))
+    similarity = similarity.flatten()
+    similarity_ranked = sorted(enumerate(similarity), key=lambda x: x[1], reverse=True)
+    best_match_index, best_match = filter(lambda x: x[1] != 1, similarity_ranked)[0]
+    return best_match, best_match_index
 
 
 def get_matching_url(input_url):
     article = get_article(input_url)
     sources = get_sources(article)
     matching_article = get_matching_article(' '.join(article.keywords), sources)
-
     return matching_article.url
