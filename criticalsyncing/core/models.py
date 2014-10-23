@@ -20,7 +20,7 @@ class Source(models.Model):
     name = models.CharField(max_length=200,
                             unique=True,
                             blank=False)
-    url = models.URLField(max_length=200,
+    url = models.URLField(max_length=2048,
                           unique=True,
                           blank=False)
     tag = models.ManyToManyField(SourceTag, blank=True)
@@ -34,18 +34,18 @@ class Source(models.Model):
 
 
 class Article(models.Model):
-    url = models.URLField(max_length=200,
+    url = models.URLField(max_length=2048,
                           blank=False,
                           unique=True)
-    title = models.CharField(max_length=200,
+    title = models.CharField(max_length=1024,
                              blank=False)
     text = models.TextField(blank=False)
     summary = models.TextField(blank=True, null=True)
-    authors = models.CharField(max_length=400, blank=True, null=True)
-    keywords = models.CharField(max_length=400, blank=True, null=True)
+    authors = models.CharField(max_length=1024, blank=True, null=True)
+    keywords = models.CharField(max_length=1024, blank=True, null=True)
     source = models.ForeignKey(Source, blank=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
-    top_image_url = models.URLField(max_length=200, null=True, default=None)
+    category = models.CharField(max_length=1024, blank=True, null=True)
+    top_image_url = models.URLField(max_length=2048, null=True, default=None)
     all_images_urls = models.TextField(blank=True, null=True, default=None)
 
     objects = ArticleDownloadManager()
@@ -58,8 +58,8 @@ class Article(models.Model):
 
 
 class Cache(models.Model):
-    input_url = models.URLField(max_length=200, unique=True)
-    output_url = models.URLField(max_length=200)
+    input_url = models.URLField(max_length=2048, unique=True)
+    output_url = models.URLField(max_length=2048)
 
     def __unicode__(self):
-        return 'Cached for %s' % self.input_url 
+        return 'Cached for %s' % self.input_url
