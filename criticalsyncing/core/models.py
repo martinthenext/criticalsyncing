@@ -41,10 +41,10 @@ class Article(models.Model):
                              blank=False)
     text = models.TextField(blank=False)
     summary = models.TextField(blank=True, null=True)
-    authors = models.CharField(max_length=1024, blank=True, null=True)
+    authors = models.TextField(blank=True, null=True)
     keywords = models.CharField(max_length=1024, blank=True, null=True)
     source = models.ForeignKey(Source, blank=True)
-    category = models.CharField(max_length=1024, blank=True, null=True)
+    category = models.TextField(blank=True, null=True)
     top_image_url = models.URLField(max_length=2048, null=True, default=None)
     all_images_urls = models.TextField(blank=True, null=True, default=None)
 

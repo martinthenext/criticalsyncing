@@ -65,12 +65,14 @@ class ArticleDownloadManager(models.Manager):
                             article.title, article.url, len(article.text))
                 continue
 
-            record = self.model(url=article.url, title=article.title,
-                                text=article.text, summary=article.summary,
+            record = self.model(url=article.url,
+                                title=article.title[:self.model.title],
+                                text=article.text,
+                                summary=article.summary,
                                 source=source,
                                 keywords=json.dumps(article.keywords),
                                 authors=json.dumps(article.authors),
-                                top_image_url=article.top_image,
+                                top_image_url=article.top_image[:self.model.top_image_url.max_length],
                                 all_images_urls=json.dumps(article.images))
             try:
                 record.save()
@@ -79,8 +81,6 @@ class ArticleDownloadManager(models.Manager):
             except IntegrityError, error:
                 logger.exception(error)
                 continue
-
-        #self.vectorize_and_serialize()
 
     def vectorize_and_serialize(self):
         # First go though all the sources to build a dictionary
