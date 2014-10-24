@@ -1,0 +1,16 @@
+#!/usr/bin/env python2
+import tornado.ioloop
+from tornado.options import options
+from crawler.config import config
+from crawler.service import application
+
+
+def main():
+    config()
+    app = application()
+    app.listen(options.crawler_port, address=options.crawler_address)
+    tornado.ioloop.IOLoop.instance().start()
+
+
+if __name__ == '__main__':
+    main()

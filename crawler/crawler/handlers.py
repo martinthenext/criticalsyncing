@@ -79,11 +79,11 @@ class FetchArticleHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
         url = self.get_query_argument("url")
-        try:
-            url, value = yield self.fetcher.fetch(url)
+        code, url, value = yield self.fetcher.fetch(url)
+        if code != "200":
+            self.set_status(code, reason)
+        else:
             self.write(value)
-        except Fetcher.FetchException:
-            self.set_status(500)
 
 
 class CrawlHandler(tornado.web.RequestHandler):
@@ -96,6 +96,7 @@ class CrawlHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self, ident=None):
+        logger.debug("source id: %s", ident)
         if ident:
             source = self.rclient.hget(self.rkey, ident)
             if not source:
@@ -106,6 +107,8 @@ class CrawlHandler(tornado.web.RequestHandler):
             sources = dict(
                 map(lambda x: (x[0], json.loads(x[1])),
                     self.rclient.hgetall(self.rkey).items()))
+        logger.debug("sources: \n%s", sources)
         result = yield self.fetcher.crawl(self.rclient, sources)
+        self.set_status(200)
         self.write(result)
         self.finish()

@@ -3,18 +3,14 @@ import tornado.httpclient
 import newspaper
 import json
 import logging
-from itertools import ifilterfalse
+from itertools import ifilterfalse, imap
 
 
 logger = logging.getLogger(__name__)
 
 
 class Fetcher:
-
-    class FetchException(RuntimeError):
-        pass
-
-    def __init__(self, timeout=10, threads=10, language="en",
+    def __init__(self, timeout=30, threads=10, language="en",
                  max_articles=500, min_length=200, max_length=200000,
                  user_agent="criticalsyncing/crawler",
                  expire=2592000):
@@ -26,54 +22,91 @@ class Fetcher:
         self.max_length = max_length
         self.hclient = tornado.httpclient.AsyncHTTPClient()
         self.user_agent = user_agent
-        self.expire = expire  # 1 month by defaut
+        self.expire = expire * 1000  # 1 month by defaut
 
     @tornado.gen.coroutine
     def fetch(self, url, source_url=None, title=None, **kwargs):
         logger.info("fetching url %s", url)
         article = newspaper.Article(
             url=url, title=title)
-        html = yield self.download(url)
+        html = None
+        try:
+            html = yield self.download_html(url)
+        except Exception, error:
+            logger.exception(error)
         if not html:
-            raise Fetcher.FetchException()
-        article = self.parse(article, html)
+            raise tornado.gen.Return(
+                (500, url, "could not download article"))
+        article = self.parse_article(article, html)
         if not article:
-            raise Fetcher.FetchException()
-        article = self.check_length(article)
+            raise tornado.gen.Return(
+                (500, url, "could not parse article"))
+        article = self.check_article_length(article)
         if not article:
-            raise Fetcher.FetchException()
+            raise tornado.gen.Return(
+                (500, url, "article's text length not in range"))
         article = self.nlp(article)
-        raise tornado.gen.Return((url, self.make_value(article, **kwargs)))
+        raise tornado.gen.Return(
+            (200, url, self.make_value(article, **kwargs)))
 
     @tornado.gen.coroutine
     def crawl(self, rclient, sources):
-        sources = imap(lambda x: (x[0], x[1]["url"]), sources.itemsview())
-        keys = {}
-        for source_id, source_url in self.sources:
+        sources = imap(lambda x: (x[0], x[1].get("url")), sources.viewitems())
+        result = {}
+
+        for source_id, source_url in sources:
+            if not source_url:
+                logger.error("source %s does not contains 'url'", source_id)
+                continue
+
             logger.info("crawling source: %s: %s", source_id, source_url)
-            paper = newspaper.build(source_url,
-                                    memoize_articles=False,
-                                    fetch_images=False,
-                                    timeout=self.timeout,
-                                    number_threads=self.threads,
-                                    language=self.language)
-            urls = ((a.url, a.title) for a in
-                    paper.articles[:self.max_articles])
-            new_urls = ifilterfalse(lambda x: rclient.exists(x[0]), urls)
-            for url, title in new_urls:
-                try:
-                    url, value = yield self.fetch(
-                        url, source_url=source_url,
-                        title=title, source_id=source_id)
-                    rclient.set(url, value, self.expire * 1000)
-                    self.keys[url] = source_id
-                except Fetcher.FetchException:
+            batch = []
+            for url, title in self.get_article_urls(rclient, source_url):
+                batch.append(self.fetch(
+                    url, source_url=source_url,
+                    title=title, source_id=source_id, valid=True))
+
+                if len(batch) < self.threads:
                     continue
-        rclient.sync()
-        raise tornado.gen.Return(self.keys)
+
+                keys = yield self.save_articles(rclient, source_id, batch)
+                result.update(keys)
+                batch = []
+
+            if batch:
+                keys = yield self.save_articles(rclient, source_id, batch)
+                result.update(keys)
+
+            logger.info("dump redis to disk")
+            rclient.save()
+        raise tornado.gen.Return(result)
+
+    def get_article_urls(self, rclient, source_url):
+        paper = newspaper.build(
+            source_url, memoize_articles=False, fetch_images=False,
+            timeout=self.timeout, number_threads=self.threads,
+            language=self.language)
+        urls = ((a.url, a.title) for a in paper.articles[:self.max_articles])
+        return ifilterfalse(lambda x: rclient.exists(x[0]), urls)
 
     @tornado.gen.coroutine
-    def download(self, url):
+    def save_articles(self, rclient, source_id, chunk):
+        keys = {}
+        logger.info("waiting for chunk")
+        results = yield chunk
+        for code, url, value in results:
+            if code != 200:
+                logger.warning("url '%s' is invalid: code '%s': %s",
+                               url, code, value)
+                rclient.set(url, {"valid": False}, self.expire)
+                continue
+            logger.info("save value for url '%s'", url)
+            rclient.set(url, value, self.expire)
+            keys[url] = source_id
+        raise tornado.gen.Return(keys)
+
+    @tornado.gen.coroutine
+    def download_html(self, url):
         logger.debug("download url: %s", url)
         response = yield self.hclient.fetch(
             url, user_agent=self.user_agent,
@@ -85,7 +118,7 @@ class Fetcher:
             raise tornado.gen.Return()
         raise tornado.gen.Return(response.body)
 
-    def parse(self, article, html):
+    def parse_article(self, article, html):
         logger.debug("parse html on url: %s", article.url)
         try:
             article.set_html(html)
@@ -97,11 +130,11 @@ class Fetcher:
             return
         return article
 
-    def check_length(self, article):
+    def check_article_length(self, article):
         logger.debug("check text length on url: %s", article.url)
         if not (self.min_length < len(article.text) < self.max_length):
-            logger.info("text length of article '%s' is not in range",
-                        article.url)
+            logger.info("text length of article '%s' is not in range: %s",
+                        article.url, len(article.text))
             return
         return article
 
