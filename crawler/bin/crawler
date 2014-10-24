@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 import tornado.ioloop
+import logging
 from tornado.options import options
 from crawler.config import config
 from crawler.service import application
@@ -7,9 +8,18 @@ from crawler.service import application
 
 def main():
     config()
+    logger = logging.getLogger("crawler")
+    logger.info("hi!")
     app = application()
+    logger.info("listen: %s:%s", options.crawler_address, options.crawler_port)
     app.listen(options.crawler_port, address=options.crawler_address)
-    tornado.ioloop.IOLoop.instance().start()
+    logger.info("start")
+    try:
+        tornado.ioloop.IOLoop.instance().start()
+    except Exception, error:
+        logger.exception(error)
+    finally:
+        logger.info("bye\n\n")
 
 
 if __name__ == '__main__':

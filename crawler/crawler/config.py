@@ -25,6 +25,22 @@ def config():
            help="crawler incomming port")
     define("crawler_address", default="127.0.0.1",
            help="crawler bind address")
+    define("fetcher_timeout", default=30, type=int,
+           help="each request timeout")
+    define("fetcher_threads", default=10, type=int,
+           help="fetcher threads count")
+    define("fetcher_language", default="en",
+           help="article language")
+    define("fetcher_max_articles", default=500, type=int,
+           help="max articles count from source")
+    define("fetcher_max_length", default=200000, type=int,
+           help="max text length")
+    define("fetcher_min_length", default=200, type=int,
+           help="min text length")
+    define("fetcher_user_agent", default="criticalsyncing/crawler",
+           help="user agent")
+    define("fetcher_expire", default=2592000, type=int,
+           help="article time to live")
     options.logging = None
     if os.path.exists(args.config):
         tornado.options.parse_config_file(args.config)

@@ -74,7 +74,7 @@ class SourceHandler(tornado.web.RequestHandler):
 
 class FetchArticleHandler(tornado.web.RequestHandler):
     def initialize(self):
-        self.fetcher = Fetcher()
+        self.fetcher = self.application.settings["fetcher"]
 
     @tornado.gen.coroutine
     def get(self):
@@ -92,7 +92,7 @@ class CrawlHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.rclient = redis.Redis(
             connection_pool=self.application.settings["rpool"])
-        self.fetcher = Fetcher()
+        self.fetcher = self.application.settings["fetcher"]
 
     @tornado.gen.coroutine
     def get(self, ident=None):

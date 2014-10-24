@@ -15,14 +15,22 @@ class Fetcher:
                  user_agent="criticalsyncing/crawler",
                  expire=2592000):
         self.timeout = timeout
+        logger.info("timeout: %s", timeout)
         self.threads = threads
+        logger.info("threads: %s", threads)
         self.language = language
+        logger.info("language: '%s'", language)
         self.max_articles = max_articles
+        logger.info("max articles: %s", max_articles)
         self.min_length = min_length
+        logger.info("min text length: %s", min_length)
         self.max_length = max_length
+        logger.info("max text length: %s", max_length)
         self.hclient = tornado.httpclient.AsyncHTTPClient()
         self.user_agent = user_agent
+        logger.info("user agent: '%s'", user_agent)
         self.expire = expire * 1000  # 1 month by defaut
+        logger.info("articles TTL: %s seconds", expire)
 
     @tornado.gen.coroutine
     def fetch(self, url, source_url=None, title=None, **kwargs):
@@ -84,8 +92,8 @@ class Fetcher:
     def get_article_urls(self, rclient, source_url):
         paper = newspaper.build(
             source_url, memoize_articles=False, fetch_images=False,
-            timeout=self.timeout, number_threads=self.threads,
-            language=self.language)
+            request_timeout=self.timeout, number_threads=self.threads,
+            language=self.language, browser_user_agent=self.user_agent)
         urls = ((a.url, a.title) for a in paper.articles[:self.max_articles])
         return ifilterfalse(lambda x: rclient.exists(x[0]), urls)
 
