@@ -80,8 +80,8 @@ class FetchArticleHandler(tornado.web.RequestHandler):
     def get(self):
         url = self.get_query_argument("url")
         code, url, value = yield self.fetcher.fetch(url)
-        if code != "200":
-            self.set_status(code, reason)
+        if code != 200:
+            self.set_status(code, reason=value)
         else:
             self.write(value)
 
