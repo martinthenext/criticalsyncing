@@ -1,0 +1,46 @@
+version: 1
+handlers:
+  crawler:
+    class: logging.handlers.RotatingFileHandler
+    formatter: file
+    filename: logs/crawler.log
+    maxBytes: 1000000
+    backupCount: 5
+  access:
+    class: logging.handlers.RotatingFileHandler
+    formatter: file
+    filename: logs/access.log
+    maxBytes: 1000000
+    backupCount: 5
+  tornado:
+    class: logging.handlers.RotatingFileHandler
+    formatter: file
+    filename: logs/tornado.log
+    maxBytes: 1000000
+    backupCount: 5
+  common:
+    class: logging.handlers.RotatingFileHandler
+    formatter: file
+    filename: logs/common.log
+    maxBytes: 1000000
+    backupCount: 5
+formatters:
+  file:
+    format: "%(asctime)s: %(levelname)s: %(name)s: %(message)s"
+root:
+  handlers:
+    - common
+  level: DEBUG
+loggers:
+  crawler:
+    handlers:
+      - crawler
+  tornado.access:
+    handlers:
+      - access
+  torando.web:
+    handlers:
+      - tornado
+  torando.general:
+    handlers:
+      - tornado
