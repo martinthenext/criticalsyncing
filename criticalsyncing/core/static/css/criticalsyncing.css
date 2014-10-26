@@ -121,7 +121,7 @@ body{
     }
 
 #search input[type="text"]:focus {
-    width: 600px;
+    width: 400px;
     outline:none;
     }
 
