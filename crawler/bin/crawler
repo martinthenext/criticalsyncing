@@ -2,8 +2,8 @@
 import tornado.ioloop
 import logging
 from tornado.options import options
-from crawler.config import config
-from crawler.service import application
+from common.config import config
+from common.service import application
 
 
 def main():

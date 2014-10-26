@@ -11,7 +11,7 @@ import redis
 from crawler.handlers import SourceHandler
 from crawler.handlers import CrawlHandler
 from crawler.handlers import FetchArticleHandler
-from fetcher import Fetcher
+from crawler.fetcher import Fetcher
 
 
 def application():
