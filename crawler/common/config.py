@@ -44,6 +44,12 @@ def config():
     define("vectorizer_pickles_directory",
            default=os.path.join(os.path.dirname(args.config), "pickles"),
            help="directory with serialized tfidf matrices")
+    define("vectorizer_max_features", default=200, type=int,
+           help="max features count")
+    define("vectorizer_max_df", default=1.0, type=float,
+           help="max df")
+    define("vectorizer_min_df", default=0.0, type=float,
+           help="min df")
     options.logging = None
     if os.path.exists(args.config):
         tornado.options.parse_config_file(args.config)

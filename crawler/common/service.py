@@ -14,6 +14,7 @@ from crawler.handlers import FetchArticleHandler
 from vectorizer.handlers import UpdateMatricesHandler
 from vectorizer.handlers import RebuildMatricesHandler
 from crawler.fetcher import Fetcher
+from vectorizer.logic import Vectorizer
 
 
 def application():
@@ -23,14 +24,18 @@ def application():
                       options.fetcher_language, options.fetcher_max_articles,
                       options.fetcher_min_length, options.fetcher_max_length,
                       options.fetcher_user_agent, options.fetcher_expire)
+    vectorizer = Vectorizer(options.vectorizer_pickles_directory,
+                            options.vectorizer_max_features,
+                            options.vectorizer_min_df,
+                            options.vectorizer_max_df)
     app = tornado.web.Application([
         (r"/sources/?", SourceHandler),
         (r"/sources/(?P<ident>\d+)", SourceHandler),
         (r"/commands/fetch/?", FetchArticleHandler),
         (r"/commands/crawl/?", CrawlHandler),
-        (r"/commands/update_matrices?", UpdateMatricesHandler),
+        (r"/commands/update_matrices/?", UpdateMatricesHandler),
         (r"/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
-        (r"/commands/rebuild_matrices?", RebuildMatricesHandler),
-        (r"/commands/rebuild_matrices/(?P<ident>\d+)", RebuildMatricesHandler),
-    ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher)
+        (r"/commands/rebuild_matrices/?", RebuildMatricesHandler),
+    ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher,
+        vectorizer=vectorizer)
     return app
