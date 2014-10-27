@@ -11,6 +11,8 @@ import redis
 from crawler.handlers import SourceHandler
 from crawler.handlers import CrawlHandler
 from crawler.handlers import FetchArticleHandler
+from vectorizer.handlers import UpdateMatricesHandler
+from vectorizer.handlers import RebuildMatricesHandler
 from crawler.fetcher import Fetcher
 
 
@@ -26,6 +28,9 @@ def application():
         (r"/sources/(?P<ident>\d+)", SourceHandler),
         (r"/commands/fetch/?", FetchArticleHandler),
         (r"/commands/crawl/?", CrawlHandler),
-        (r"/commands/crawl/(?P<ident>\d+)", CrawlHandler),
+        (r"/commands/update_matrices?", UpdateMatricesHandler),
+        (r"/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
+        (r"/commands/rebuild_matrices?", RebuildMatricesHandler),
+        (r"/commands/rebuild_matrices/(?P<ident>\d+)", RebuildMatricesHandler),
     ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher)
     return app

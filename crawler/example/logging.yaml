@@ -6,6 +6,12 @@ handlers:
     filename: logs/crawler.log
     maxBytes: 1000000
     backupCount: 5
+  vectorizer:
+    class: logging.handlers.RotatingFileHandler
+    formatter: file
+    filename: logs/vectorizer.log
+    maxBytes: 1000000
+    backupCount: 5
   access:
     class: logging.handlers.RotatingFileHandler
     formatter: file
@@ -35,6 +41,9 @@ loggers:
   crawler:
     handlers:
       - crawler
+  vectorizer:
+    handlers:
+      - vectorizer
   tornado.access:
     handlers:
       - access

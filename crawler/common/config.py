@@ -41,6 +41,9 @@ def config():
            help="user agent")
     define("fetcher_expire", default=2592000, type=int,
            help="article time to live")
+    define("vectorizer_pickles_directory",
+           default=os.path.join(os.path.dirname(args.config), "pickles"),
+           help="directory with serialized tfidf matrices")
     options.logging = None
     if os.path.exists(args.config):
         tornado.options.parse_config_file(args.config)
