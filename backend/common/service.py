@@ -14,7 +14,7 @@ from crawler.handlers import FetchArticleHandler
 from vectorizer.handlers import UpdateMatricesHandler
 from vectorizer.handlers import RebuildMatricesHandler
 from crawler.fetcher import Fetcher
-from vectorizer.logic import Vectorizer
+from vectorizer.vectorizer import Vectorizer
 
 
 def application():
