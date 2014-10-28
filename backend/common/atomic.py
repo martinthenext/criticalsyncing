@@ -35,7 +35,8 @@ class TmpDirectory:
             old = self.destination + "_old"
             if os.path.isdir(old):
                 shutil.rmtree(old)
-            os.rename(self.destination, old)
+            if os.path.isdir(self.destination):
+                os.rename(self.destination, old)
             os.rename(self.tmp, self.destination)
         return etype is None
 
