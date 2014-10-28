@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -37,3 +38,15 @@ class TmpDirectory:
             os.rename(self.destination, old)
             os.rename(self.tmp, self.destination)
         return etype is None
+
+
+class RedisLock:
+    def __init__(self, rclient, key):
+        self.rclient = rclient
+        self.key = key
+
+    def acquire(self):
+        return self.rclient.setnx(self.key, uuid.uuid4())
+
+    def release(self):
+        self.rclient.delete(self.key)

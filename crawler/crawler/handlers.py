@@ -4,6 +4,7 @@ import logging
 import json
 import redis
 from .fetcher import Fetcher
+from common.atomic import RedisLock
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +94,7 @@ class CrawlHandler(tornado.web.RequestHandler):
         self.rclient = redis.Redis(
             connection_pool=self.application.settings["rpool"])
         self.fetcher = self.application.settings["fetcher"]
+        self.rlock = RedisLock(self.rclient, "write_lock")
 
     @tornado.gen.coroutine
     def get(self, ident=None):
@@ -108,7 +110,15 @@ class CrawlHandler(tornado.web.RequestHandler):
                 map(lambda x: (x[0], json.loads(x[1])),
                     self.rclient.hgetall(self.rkey).items()))
         logger.debug("sources: \n%s", sources)
-        result = yield self.fetcher.crawl(self.rclient, sources)
+        if not self.rlock.acquire():
+            logger.debug("updating process already started")
+            self.set_status(202)
+            self.finish()
+        result = None
+        try:
+            result = yield self.fetcher.crawl(self.rclient, sources)
+        finally:
+            self.rlock.release()
         self.set_status(200)
         self.write(result)
         self.finish()
