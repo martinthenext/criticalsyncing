@@ -9,7 +9,7 @@ import yaml
 def get_args():
     parser = ArgumentParser()
     parser.add_argument("-c", "--config",
-                        default=os.path.join(os.getcwd(), "crawler.cfg"))
+                        default=os.path.join(os.getcwd(), "backend.cfg"))
     return parser.parse_args()
 
 
