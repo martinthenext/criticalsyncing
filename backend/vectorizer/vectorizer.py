@@ -4,16 +4,18 @@ import operator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.externals import joblib
+from sklearn.metrics.pairwise import cosine_similarity
 import os
 import json
 from array import array
 import scipy.sparse as sp
 from common.atomic import TmpDirectory
+from .mixin import PicklesMixin
 
 logger = logging.getLogger(__name__)
 
 
-class Vectorizer:
+class Vectorizer(PicklesMixin):
     def __init__(self, pickles_directory, max_features, min_df, max_df):
         self.pickles_directory = pickles_directory
         logger.info("pickles directory: %s", pickles_directory)
@@ -93,54 +95,79 @@ class Vectorizer:
                 self.save_tfidf(tfidf, source)
                 self.save_urls(source_urls, source)
 
-    def create_directory(self, directory):
-        if not os.path.isdir(directory):
-            logger.info("creating directory: %s", directory)
-            if os.path.exists(directory):
-                os.remove(directory)
-            os.makedirs(directory)
+    def match(self, rclient, article):
+        sources = self.get_sources(rclient, article)
+        return self.get_matching_url(article, sources)
 
-    def save_vectorizer(self, vectorizer):
-        filename = os.path.join(
-            self.pickles_directory, self.tmp_prefix,
-            self.vectorizer_name)
-        logger.info("saving vectorizer: %s", filename)
-        joblib.dump(vectorizer, filename)
+    def get_matching_url(self, article, sources):
+        text = article["text"]
+        vectorizer = self.load_vectorizer()
+        transformed = vectorizer.transform([text])
+        if sources is None:
+            _, best_article_index = self.find_max_similarity(transformed)
+            return self.load_urls("global")[best_article_index]
+        else:
+            similarities = []
+        for source in sources:
+            similarity, similarity_index = \
+                self.find_max_similarity(transformed, source)
+            similarities.append((similarity, similarity_index, source))
+        similarities = sorted(similarities, key=operator.itemgetter(0))
+        _, best_index, source = similarities[-1]
+        return self.load_urls(source)[best_index]
 
-    def save_tfidf(self, tfidf, suffix):
-        filename = os.path.join(
-            self.pickles_directory, self.tmp_prefix,
-            self.tfidf_name.format(suffix=suffix))
-        logger.info("saving tfidf: %s", filename)
-        joblib.dump(tfidf, filename)
+    def find_max_similarity(self, transformed, source=None):
+        similarity = cosine_similarity(
+            transformed, self.load_tfidf(source or "global"))
+        similarity = similarity.flatten()
+        similarity_ranked = sorted(enumerate(similarity),
+                                   key=lambda x: x[1], reverse=True)
+        best_match_index, best_match = filter(
+            lambda x: x[1] != 1, similarity_ranked)[0]
+        return best_match, best_match_index
 
-    def save_urls(self, urls, suffix):
-        filename = os.path.join(
-            self.pickles_directory, self.tmp_prefix,
-            self.urls_name.format(suffix=suffix))
-        logger.info("saving urls: %s", filename)
-        joblib.dump(list(urls), filename)
+    def get_sources(self, rclient, article):
+        WESTTAG = "western"
+        MIDDLEEASTTAG = "middle east"
+        MIDDLEEAST = ["bahrain", "cyprus", "egypt", "iran", "iraq", "jordan",
+                      "kuwait", "lebanon", "oman", "palestine", "qatar"
+                      "arabia", "syria", "emirates", "yemen", "israel"]
+        allsources = rclient.hgetall("sources")
+        keywords = article.get("keywords", [])
+        url = article.get("url")
 
-    def load_vectorizer(self):
-        filename = os.path.join(
-            self.pickles_directory, self.prefix,
-            self.vectorizer_name)
-        logger.info("loading vectorizer: %s", filename)
-        return joblib.load(filename)
+        # matching by keywords
+        if set(keywords) & set(MIDDLEEAST):
+            keywords.append(MIDDLEEASTTAG)
+        sources = filter(
+            lambda x: (set(x.get("tags", [])) - set([WESTTAG])) & set(keywords),
+            allsources)
+        if sources:
+            logger.info("sources are matched by keywords: %s", sources)
+            return map(lambda x: x["id"], sources)
 
-    def load_tfidf(self, suffix):
-        filename = os.path.join(
-            self.pickles_directory, self.prefix,
-            self.tfidf_name.format(suffix=suffix))
-        logger.info("loading tfidf: %s", filename)
-        return joblib.load(filename)
+        # matching western
+        domain = "{uri.netloc}".format(uri=urlparse(url))
+        parts = -2
+        if domain.endswith("co.uk"):
+            parts = -3
+        domain = ".".join(domain.split(".")[parts:])  # top level domain
+        logger.info("domain: %s", domain)
+        sources = filter(
+            lambda x: set(x.get("tags", [])) & set([WESTTAG]) and
+            x.get("url", "").find(domain) >= 0, allsources)
+        if sources:
+            bias = sources[0].get("bias")
+            logger.info("bias: %s", bias)
+            sources = filter(
+                lambda x: (set(x.get("tags")) & set([WESTTAG])) and
+                x.get("bias", bias) != bias,
+                allsources)
+            if sources:
+                logger.info("western sources: %s", sources)
+                return map(lambda x: x["id"], sources)
 
-    def load_urls(self, suffix):
-        filename = os.path.join(
-            self.pickles_directory, self.prefix,
-            self.urls_name.format(suffix=suffix))
-        logger.info("loading urls: %s", filename)
-        return joblib.load(filename)
+        return None
 
     def extract_data(self, rclient, urls):
         for url in urls:
@@ -151,7 +178,7 @@ class Vectorizer:
             data = json.loads(data)
             text = data.get("text")
             valid = data.get("valid")
-            source_id = data.get("source_id")
+            source_id = data.get("id")
             if not valid or not text:
                 logger.debug("skipping invalid %s: valid: %s", url, valid)
                 continue

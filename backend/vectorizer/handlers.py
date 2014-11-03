@@ -73,3 +73,19 @@ class RebuildMatricesHandler(tornado.web.RequestHandler):
             self.rlock.release()
         self.set_status(204)
         self.finish()
+
+
+class FetchArticleHandler(tornado.web.RequestHandler):
+    def initialize(self):
+        self.fetcher = self.application.settings["fetcher"]
+
+    @tornado.gen.coroutine
+    def get(self):
+        url = self.get_query_argument("url")
+        code, url, value = yield self.fetcher.fetch(url)
+        if code != 200:
+            self.set_status(code, reason=value)
+            self.finish()
+        else:
+            url = self.logic.get_matching_url(value)
+            self.write({"url": url})
