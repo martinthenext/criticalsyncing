@@ -1,4 +1,4 @@
-PyYAML==3.11
+PyYAML==3.10
 backports.ssl-match-hostname==3.4.0.2
 certifi==14.05.14
 cssselect==0.9.1
@@ -12,8 +12,8 @@ numpy==1.9.0
 pycurl==7.19.5
 redis==2.10.3
 requests==2.4.3
-scikit-learn==0.15.2
-scipy==0.14.0
+scikit-learn==0.14.1
+scipy==0.13.3
 six==1.8.0
-tornado==4.0.2
+tornado==3.1.1
 wsgiref==0.1.2

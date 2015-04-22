@@ -10,9 +10,9 @@ import redis
 
 from crawler.handlers import SourceHandler
 from crawler.handlers import CrawlHandler
-from crawler.handlers import FetchArticleHandler
 from vectorizer.handlers import UpdateMatricesHandler
 from vectorizer.handlers import RebuildMatricesHandler
+from vectorizer.handlers import FetchArticleHandler
 from crawler.fetcher import Fetcher
 from vectorizer.vectorizer import Vectorizer
 

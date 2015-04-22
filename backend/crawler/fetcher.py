@@ -119,6 +119,7 @@ class Fetcher:
         response = yield self.hclient.fetch(
             url, user_agent=self.user_agent,
             request_timeout=self.timeout,
+            follow_redirects=True,
             validate_cert=True)
         if response.code != 200:
             logger.error("could not download article by url '%s': %s",

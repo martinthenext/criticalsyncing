@@ -32,7 +32,7 @@ class Vectorizer(PicklesMixin):
         self.vectorizer_name = "vectorizer.pkl"
         self.urls_name = "url_{suffix}.pkl"
         self.tfidf_name = "tfidf_{suffix}.pkl"
-        self.create_directory(pickles_directory)
+        self.prepare_directory()
 
     def rebuild(self, rclient):
         texts = []
@@ -132,7 +132,11 @@ class Vectorizer(PicklesMixin):
         MIDDLEEAST = ["bahrain", "cyprus", "egypt", "iran", "iraq", "jordan",
                       "kuwait", "lebanon", "oman", "palestine", "qatar"
                       "arabia", "syria", "emirates", "yemen", "israel"]
-        allsources = rclient.hgetall("sources")
+        allsources = [
+          json.loads(v).items() + [("id", k)] 
+          for k, v in rclient.hgetall("sources").items()
+        ]
+        allsources = map(lambda x: dict(x), allsources)
         keywords = article.get("keywords", [])
         url = article.get("url")
 
@@ -178,7 +182,7 @@ class Vectorizer(PicklesMixin):
             data = json.loads(data)
             text = data.get("text")
             valid = data.get("valid")
-            source_id = data.get("id")
+            source_id = data.get("source_id")
             if not valid or not text:
                 logger.debug("skipping invalid %s: valid: %s", url, valid)
                 continue

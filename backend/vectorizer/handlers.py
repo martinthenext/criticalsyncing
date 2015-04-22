@@ -78,6 +78,9 @@ class RebuildMatricesHandler(tornado.web.RequestHandler):
 class FetchArticleHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.fetcher = self.application.settings["fetcher"]
+        self.vectorizer = self.application.settings["vectorizer"]
+        self.rclient = redis.Redis(
+            connection_pool=self.application.settings["rpool"])
 
     @tornado.gen.coroutine
     def get(self):
@@ -87,5 +90,5 @@ class FetchArticleHandler(tornado.web.RequestHandler):
             self.set_status(code, reason=value)
             self.finish()
         else:
-            url = self.logic.get_matching_url(value)
+            url = self.vectorizer.match(self.rclient, value)
             self.write({"url": url})
