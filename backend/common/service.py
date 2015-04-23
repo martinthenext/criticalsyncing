@@ -19,8 +19,8 @@ from vectorizer.vectorizer import Vectorizer
 
 
 def application():
-    rpool = redis.ConnectionPool(
-        **dict(zip(["host", "port", "db"], options.redis.split(":"))))
+    host, port, db = options.redis.split(":")
+    rpool = redis.ConnectionPool(host=host, port=int(port), db=int(db))
     fetcher = Fetcher(options.fetcher_timeout, options.fetcher_threads,
                       options.fetcher_language, options.fetcher_max_articles,
                       options.fetcher_min_length, options.fetcher_max_length,
