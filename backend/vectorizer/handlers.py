@@ -22,7 +22,7 @@ class UpdateMatricesHandler(tornado.web.RequestHandler):
     def post(self, ident=None):
         logger.debug("source id: %s", ident)
         if ident:
-            source = json.loads(self.rclient.hget(self.rkey, ident))
+            source = json.loads(self.rclient.hget(self.rkey, int(ident)))
             if not source:
                 self.set_status("404")
                 self.finish()

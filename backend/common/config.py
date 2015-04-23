@@ -25,6 +25,8 @@ def config():
            help="crawler incomming port")
     define("crawler_address", default="127.0.0.1",
            help="crawler bind address")
+    define("crawler_debug", default=False, type=bool,
+           help="debug")
     define("fetcher_timeout", default=30, type=int,
            help="each request timeout")
     define("fetcher_threads", default=10, type=int,

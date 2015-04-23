@@ -38,7 +38,8 @@ def application():
         (r"/api/v1/commands/update_matrices/?", UpdateMatricesHandler),
         (r"/api/v1/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
         (r"/commands/rebuild_matrices/?", RebuildMatricesHandler),
-    ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher,
+    ], compress_response=True, rpool=rpool,
+        debug=options.crawler_debug, fetcher=fetcher,
         vectorizer=vectorizer)
     return app
 

@@ -37,7 +37,7 @@ class SourceHandler(tornado.web.RequestHandler):
             self.write(sources)
             self.finish()
         else:
-            source = self.rclient.hget(self.rkey, ident)
+            source = self.rclient.hget(self.rkey, int(ident))
             if source:
                 self.write(json.loads(source))
             else:
@@ -56,17 +56,17 @@ class SourceHandler(tornado.web.RequestHandler):
             logger.exception(error)
             self.set_status(406)
             self.finish()
-        if not self.rclient.hexists(self.rkey, ident):
+        if not self.rclient.hexists(self.rkey, int(ident)):
             logger.debug("resource created: %s", self.request.uri)
             self.set_status(201)
             self.set_header("Location", self.request.uri)
-        self.rclient.hset(self.rkey, ident, json.dumps(source))
+        self.rclient.hset(self.rkey, int(ident), json.dumps(source))
         self.finish()
 
     def delete(self, ident=None):
         self.not_allowed(ident)
-        if self.rclient.hexists(self.rkey, ident):
-            self.rclient.hdel(self.rkey, ident)
+        if self.rclient.hexists(self.rkey, int(ident)):
+            self.rclient.hdel(self.rkey, int(ident))
             logger.debug("resource deleted: %s", self.request.uri)
         else:
             self.set_status(404)
