@@ -9,6 +9,7 @@ import os
 import json
 from array import array
 import scipy.sparse as sp
+from urlparse import urlparse
 from common.atomic import TmpDirectory
 from .mixin import PicklesMixin
 
@@ -133,7 +134,7 @@ class Vectorizer(PicklesMixin):
                       "kuwait", "lebanon", "oman", "palestine", "qatar"
                       "arabia", "syria", "emirates", "yemen", "israel"]
         allsources = [
-          json.loads(v).items() + [("id", k)] 
+          json.loads(v).items() + [("id", k)]
           for k, v in rclient.hgetall("sources").items()
         ]
         allsources = map(lambda x: dict(x), allsources)
