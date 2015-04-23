@@ -75,7 +75,7 @@ class RebuildMatricesHandler(tornado.web.RequestHandler):
         self.finish()
 
 
-class FetchArticleHandler(tornado.web.RequestHandler):
+class MatchArticleHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.fetcher = self.application.settings["fetcher"]
         self.vectorizer = self.application.settings["vectorizer"]

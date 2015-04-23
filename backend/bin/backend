@@ -3,7 +3,7 @@ import tornado.ioloop
 import logging
 from tornado.options import options
 from common.config import config
-from common.service import application
+from common.service import application, synchronize
 
 
 def main():
@@ -13,6 +13,7 @@ def main():
     app = application()
     logger.info("listen: %s:%s", options.crawler_address, options.crawler_port)
     app.listen(options.crawler_port, address=options.crawler_address)
+    synchronize(app).start()
     logger.info("start")
     try:
         tornado.ioloop.IOLoop.instance().start()

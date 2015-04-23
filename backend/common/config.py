@@ -50,6 +50,8 @@ def config():
            help="max df")
     define("vectorizer_min_df", default=0.0, type=float,
            help="min df")
+    define("synchronization_period", default=3600, type=int
+           help="synchronization period")
     options.logging = None
     if os.path.exists(args.config):
         tornado.options.parse_config_file(args.config)

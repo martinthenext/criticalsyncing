@@ -10,9 +10,10 @@ import redis
 
 from crawler.handlers import SourceHandler
 from crawler.handlers import CrawlHandler
+from crawler.handlers import FetchArticleHandler
 from vectorizer.handlers import UpdateMatricesHandler
 from vectorizer.handlers import RebuildMatricesHandler
-from vectorizer.handlers import FetchArticleHandler
+from vectorizer.handlers import MatchArticleHandler
 from crawler.fetcher import Fetcher
 from vectorizer.vectorizer import Vectorizer
 
@@ -32,6 +33,7 @@ def application():
         (r"/sources/?", SourceHandler),
         (r"/sources/(?P<ident>\d+)", SourceHandler),
         (r"/commands/fetch/?", FetchArticleHandler),
+        (r"/commands/match/?", MatchArticleHandler),
         (r"/commands/crawl/?", CrawlHandler),
         (r"/commands/update_matrices/?", UpdateMatricesHandler),
         (r"/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
@@ -39,3 +41,24 @@ def application():
     ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher,
         vectorizer=vectorizer)
     return app
+
+
+def synchronize(application, ioloop=None):
+    def callback():
+        rclient = redis.Redis(
+            connection_pool=application.settings["rpool"])
+        fetcher = application.settings["fetcher"]
+        vectorizer = application.settings["vectorizer"]
+        rlock = RedisLock(rclient, "write_lock")
+        if not rlock.acquire():
+            logger.info("updating process already started")
+            return
+        try:
+            urls = yield fetcher.crawl(rclient, sources)
+            logger.debug("urls: \n%s", urls)
+            vectorizer.update(rclient, urls.iterkeys())
+        finally:
+            rlock.release()
+
+    return tornado.ioloop.PeriodicCallback(
+        callback, options.synchronization_period * 1000, ioloop)
