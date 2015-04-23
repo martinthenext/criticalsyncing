@@ -84,7 +84,7 @@ class MatchArticleHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self):
-        url = self.get_query_argument("url")
+        url = self.get_arguments("url")[0]
         code, url, value = yield self.fetcher.fetch(url)
         if code != 200:
             self.set_status(code, reason=value)
