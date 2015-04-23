@@ -50,6 +50,19 @@ function rotateAnimation(el,speed){
 	document.getElementById("status").innerHTML = "rotate("+degrees+"deg)";
 }
 
+function onSubmit() {
+  var r = new XMLHttpRequest();
+  var url = document.forms["search"].elements[0].value;
+  r.open("GET", "/api/v1/commands/match?url=" + url, true);
+  r.onreadystatechange = function () {
+    if (r.readyState != 4 || r.status != 200) return;
+      console.log(r.responseText);
+      document.locacation = JSON.parse(r.responseText)["url"];
+    };
+  r.send();
+  return false;
+}
+
 	</script>
 
 </head>
@@ -63,12 +76,9 @@ function rotateAnimation(el,speed){
 			<img src="static/logo.gif" class="logo" id="logoname">
 		</div>
 	<div class="search-container">
-	<form method="post" id="search">
-	{% if error %}
-	<p>{{error}}</p>
-	{% endif %}
+	<form id="search" onsubmit="return onSubmit()">
+	<p id="error"></p>
 	<input name="url" type="text" placeholder="paste url here" id="url">
-	{% csrf_token %}
 	<!--input name="sync" type="submit" value="sync"-->
     </form>
 	</div>
