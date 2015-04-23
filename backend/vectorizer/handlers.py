@@ -19,7 +19,7 @@ class UpdateMatricesHandler(tornado.web.RequestHandler):
         self.rlock = RedisLock(self.rclient, "write_lock")
 
     @tornado.gen.coroutine
-    def get(self, ident=None):
+    def post(self, ident=None):
         logger.debug("source id: %s", ident)
         if ident:
             source = json.loads(self.rclient.hget(self.rkey, ident))
@@ -61,7 +61,7 @@ class RebuildMatricesHandler(tornado.web.RequestHandler):
             logger.exception(e)
         logger.debug(1)
 
-    def get(self):
+    def post(self):
         logger.debug("get")
         if not self.rlock.acquire():
             logger.debug("updating process already started")

@@ -30,13 +30,13 @@ def application():
                             options.vectorizer_min_df,
                             options.vectorizer_max_df)
     app = tornado.web.Application([
-        (r"/sources/?", SourceHandler),
-        (r"/sources/(?P<ident>\d+)", SourceHandler),
-        (r"/commands/fetch/?", FetchArticleHandler),
-        (r"/commands/match/?", MatchArticleHandler),
-        (r"/commands/crawl/?", CrawlHandler),
-        (r"/commands/update_matrices/?", UpdateMatricesHandler),
-        (r"/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
+        (r"/api/v1/sources/?", SourceHandler),
+        (r"/api/v1/sources/(?P<ident>\d+)", SourceHandler),
+        (r"/api/v1/commands/fetch/?", FetchArticleHandler),
+        (r"/api/v1/commands/match/?", MatchArticleHandler),
+        (r"/api/v1/commands/crawl/?", CrawlHandler),
+        (r"/api/v1/commands/update_matrices/?", UpdateMatricesHandler),
+        (r"/api/v1/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
         (r"/commands/rebuild_matrices/?", RebuildMatricesHandler),
     ], compress_response=True, rpool=rpool, debug=True, fetcher=fetcher,
         vectorizer=vectorizer)
