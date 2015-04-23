@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+
+        "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Critical Syncing</title>
+	<link rel="stylesheet" type="text/css" href="static/css/criticalsyncing.css">
+        <link rel="shortcut icon" href="static/favicon.ico" >
+	<script>
+		function addEvent( obj, type, fn ) {
+
+	  if ( obj.attachEvent ) {
+
+	    obj['e'+type+fn] = fn;
+
+	    obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
+
+	    obj.attachEvent( 'on'+type, obj[type+fn] );
+
+	  } else
+
+	    obj.addEventListener( type, fn, false );
+
+		}
+
+
+		var looper;
+var degrees = 0;
+function rotateAnimation(el,speed){
+	var elem = document.getElementById(el);
+	if(navigator.userAgent.match("Chrome")){
+		elem.style.WebkitTransform = "rotate(-"+degrees+"deg)";
+	} else if(navigator.userAgent.match("Firefox")){
+		elem.style.MozTransform = "rotate(-"+degrees+"deg)";
+	} else if(navigator.userAgent.match("MSIE")){
+		elem.style.msTransform = "rotate(-"+degrees+"deg)";
+	} else if(navigator.userAgent.match("Opera")){
+		elem.style.OTransform = "rotate(-"+degrees+"deg)";
+	} else {
+		elem.style.transform = "rotate(-"+degrees+"deg)";
+	}
+	looper = setTimeout('rotateAnimation(\''+el+'\','+speed+')',speed);
+	degrees++;
+	if(degrees < 1){
+		degrees = 360;
+	}
+	document.getElementById("status").innerHTML = "rotate("+degrees+"deg)";
+}
+
+	</script>
+
+</head>
+
+
+
+<body>
+
+<div class="container">
+		<div id="rotate-z" class="logo-container">
+			<img src="static/logo.gif" class="logo" id="logoname">
+		</div>
+	<div class="search-container">
+	<form method="post" id="search">
+	{% if error %}
+	<p>{{error}}</p>
+	{% endif %}
+	<input name="url" type="text" placeholder="paste url here" id="url">
+	{% csrf_token %}
+	<!--input name="sync" type="submit" value="sync"-->
+    </form>
+	</div>
+
+</div>
+
+<div id="title">Critical Syncing</div>
+
+<div id="footer">Follow us at <a href="https://twitter.com/criticalsyncing" target="_blank">@CriticalSyncing</a></div>
+
+	<script>
+	addEvent(document.getElementById('search'), 'paste', function(event) {
+
+	    document.getElementById("logoname").className = "logo_rotate";
+	    // wait to paste finish
+	    setTimeout(function() {
+	    	document.forms["search"].submit();
+	    }, 100);
+
+	});
+
+	</script>
+
+
+</body>
+</html>
+
+

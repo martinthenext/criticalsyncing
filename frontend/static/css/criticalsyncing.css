@@ -1,0 +1,172 @@
+/* Functions */
+@-webkit-keyframes rotate {
+    from {-webkit-transform: rotate(0deg);}
+/*    to {-webkit-transform: rotate3d(0,0,-1,360deg);*/
+      to {-webkit-transform: rotate(-360deg);}
+}
+
+@-moz-keyframes rotate {
+    from {-moz-transform: rotate(0deg);}
+    to {-moz-transform: rotate(-360deg);}
+}
+
+@keyframes rotate {
+    from { -webkit-transform: rotate(0deg);}
+    to {transform: rotate(-360deg);}
+}
+
+/* CSS design */
+
+html { 
+}
+
+body{
+  background-color: #fff;
+  background: linear-gradient(180deg, #ddd, #fff) no-repeat;
+  height:100%;
+  font-color:#ccc;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+	top: 40%;
+	transform: translateY(40%);
+}
+
+.logo-container{
+    width: 100%;
+    margin-left: auto;
+	  margin-right: auto;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo {
+      width: 20%;
+      opacity: 0.7;
+      color: white;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 40px;
+    }
+
+.logo_rotate {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 20%;
+      opacity: 0.7;
+      color: white;
+      margin-bottom: 40px;
+      -webkit-animation-name: rotate; 
+      -webkit-animation-duration: 2s; 
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-timing-function: linear;
+
+      -moz-animation-name: rotate; 
+      -moz-animation-duration: 2s; 
+      -moz-animation-iteration-count: infinite;
+      -moz-animation-timing-function: linear;
+
+      animation-name: rotate; 
+      animation-duration: 2s; 
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+}
+
+.logo:hover {
+    -webkit-animation-name: rotate; 
+    -webkit-animation-duration: 2s; 
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+
+    -moz-animation-name: rotate; 
+    -moz-animation-duration: 2s; 
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+
+    animation-name: rotate; 
+    animation-duration: 2s; 
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+
+}
+
+.search-container{
+	margin-top: 0px;
+	text-align:center;
+}
+
+#search {
+}
+
+#search input[type="text"] {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    border: 0 none;
+    color: #777;
+    width: 200px;
+    padding: 6px 15px 6px 35px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+    -webkit-transition: all 0.7s ease 0s;
+    -moz-transition: all 0.7s ease 0s;
+    -o-transition: all 0.7s ease 0s;
+    transition: all 0.7s ease 0s;
+    font-size: 24px
+    }
+
+#search input[type="text"]:focus {
+    width: 400px;
+    outline:none;
+    }
+
+#title {
+    clear: both;
+    position: relative;
+    height: 3em;
+    margin-top: 10px;
+/*    margin-bottom: 10px;*/
+    text-align: center;
+    color:#2B2B2B  ;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 30px;
+}
+
+#footer {
+    clear: both;
+    position: relative;
+    z-index: 10;
+    height: 3em;
+    margin-top: 100px;
+    margin-bottom: 30px;
+    text-align: center;
+    color:#2B2B2B  ;
+   /*font-family: Century Gothic, sans-serif;*/
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 12px;
+}
+
+a:link {
+    text-decoration: none;
+    color: #2B2B2B  ;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #2B2B2B  ;
+}
+
+a:hover {
+    text-decoration: underline;
+        color: #2B2B2B  ;
+}
+
+a:active {
+    text-decoration: underline;
+        color: #2B2B2B  ;
+}
