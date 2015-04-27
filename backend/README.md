@@ -9,7 +9,7 @@
 
 *  *  code: 200
 
-            +pc ~: user$ curl -X GET http://127.0.0.1:8080/sources
+            +pc ~: user$ curl -X GET http://127.0.0.1:8080/api/v1/sources
             {"2": {"url": "http://bbc.com", "name": "bbc", "source_id": "2"}}
 
 * /sources/\<id\>
@@ -20,7 +20,7 @@
 
 *  *  code: 200, 404
 
-            +pc ~: user$ curl -X GET http://127.0.0.1:8080/sources
+            +pc ~: user$ curl -X GET http://127.0.0.1:8080/api/v1/sources
             {"2": {"url": "http://bbc.com", "name": "bbc", "source_id": "2"}}
 
 * /sources/\<id\>
@@ -31,8 +31,8 @@
 
 *  *  code: 200, 201, 406, 415
 
-            +pc ~: user$ curl -X PUT -H "Content-Type: application/json" -d '{"url": "http://edition.cnn.com", "name": "cnn", "source_id": "1"}' http://127.0.0.1:8080/sources/1
-            +pc ~: user$ curl -X GET http://127.0.0.1:8080/sources
+            +pc ~: user$ curl -X PUT -H "Content-Type: application/json" -d '{"url": "http://edition.cnn.com", "name": "cnn", "source_id": "1"}' http://127.0.0.1:8080/api/v1/sources/1
+            +pc ~: user$ curl -X GET http://127.0.0.1:8080/api/v1/sources
             {{"1": {"url": "http://edition.cnn.com", "source_id": "1", "name": "cnn"}, "2": {"url": "http://bbc.com", "source_id": "2", "name": "bbc"}}
 
 * /sources/\<id\>
@@ -43,8 +43,8 @@
 
 *  *  code: 200, 404
 
-            +pc ~: user$ curl -X DELETE http://127.0.0.1:8080/sources/1
-            +pc ~: user$ curl -X GET http://127.0.0.1:8080/sources
+            +pc ~: user$ curl -X DELETE http://127.0.0.1:8080/api/v1/sources/1
+            +pc ~: user$ curl -X GET http://127.0.0.1:8080/api/v1/sources
             {"2": {"url": "http://bbc.com", "name": "bbc", "source_id": "2"}}
 
 ###Commands

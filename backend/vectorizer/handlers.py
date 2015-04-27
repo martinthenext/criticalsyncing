@@ -22,7 +22,7 @@ class UpdateMatricesHandler(tornado.web.RequestHandler):
     def post(self, ident=None):
         logger.debug("source id: %s", ident)
         if ident:
-            source = json.loads(self.rclient.hget(self.rkey, int(ident)))
+            source = json.loads(self.rclient.hget(self.rkey, ident))
             if not source:
                 self.set_status("404")
                 self.finish()
@@ -84,7 +84,7 @@ class MatchArticleHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self):
-        url = self.get_arguments("url")[0]
+        url = self.get_query_argument("url")
         code, url, value = yield self.fetcher.fetch(url)
         if code != 200:
             self.set_status(code, reason=value)

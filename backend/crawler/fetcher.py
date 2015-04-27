@@ -106,16 +106,10 @@ class Fetcher:
             if code != 200:
                 logger.warning("url '%s' is invalid: code '%s': %s",
                                url, code, value)
-                try:
-                    rclient.set(url, json.dumps({"valid": False}), self.expire)
-                except:
-                    rclient.set(url, json.dumps({"valid": False}))
+                rclient.set(url, json.dumps({"valid": False}), self.expire)
                 continue
             logger.info("save value for url '%s'", url)
-            try:
-                rclient.set(url, json.dumps(value), self.expire)
-            except:
-                rclient.set(url, json.dumps(value))
+            rclient.set(url, json.dumps(value), self.expire)
             keys[url] = source_id
         raise tornado.gen.Return(keys)
 

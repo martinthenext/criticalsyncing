@@ -37,7 +37,7 @@ class SourceHandler(tornado.web.RequestHandler):
             self.write(sources)
             self.finish()
         else:
-            source = self.rclient.hget(self.rkey, int(ident))
+            source = self.rclient.hget(self.rkey, ident)
             if source:
                 self.write(json.loads(source))
             else:
@@ -56,17 +56,17 @@ class SourceHandler(tornado.web.RequestHandler):
             logger.exception(error)
             self.set_status(406)
             self.finish()
-        if not self.rclient.hexists(self.rkey, int(ident)):
+        if not self.rclient.hexists(self.rkey, ident):
             logger.debug("resource created: %s", self.request.uri)
             self.set_status(201)
             self.set_header("Location", self.request.uri)
-        self.rclient.hset(self.rkey, int(ident), json.dumps(source))
+        self.rclient.hset(self.rkey, ident, json.dumps(source))
         self.finish()
 
     def delete(self, ident=None):
         self.not_allowed(ident)
-        if self.rclient.hexists(self.rkey, int(ident)):
-            self.rclient.hdel(self.rkey, int(ident))
+        if self.rclient.hexists(self.rkey, ident):
+            self.rclient.hdel(self.rkey, ident)
             logger.debug("resource deleted: %s", self.request.uri)
         else:
             self.set_status(404)
@@ -79,7 +79,7 @@ class FetchArticleHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self):
-        url = self.get_arguments("url")[0]
+        url = self.get_query_argument("url")
         code, url, value = yield self.fetcher.fetch(url)
         if code != 200:
             self.set_status(code, reason=value)

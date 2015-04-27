@@ -19,8 +19,8 @@ from vectorizer.vectorizer import Vectorizer
 
 
 def application():
-    host, port, db = options.redis.split(":")
-    rpool = redis.ConnectionPool(host=host, port=int(port), db=int(db))
+    rpool = redis.ConnectionPool(
+        **dict(zip(["host", "port", "db"], options.redis.split(":"))))
     fetcher = Fetcher(options.fetcher_timeout, options.fetcher_threads,
                       options.fetcher_language, options.fetcher_max_articles,
                       options.fetcher_min_length, options.fetcher_max_length,
@@ -37,7 +37,7 @@ def application():
         (r"/api/v1/commands/crawl/?", CrawlHandler),
         (r"/api/v1/commands/update_matrices/?", UpdateMatricesHandler),
         (r"/api/v1/commands/update_matrices/(?P<ident>\d+)", UpdateMatricesHandler),
-        (r"/commands/rebuild_matrices/?", RebuildMatricesHandler),
+        (r"/api/v1/commands/rebuild_matrices/?", RebuildMatricesHandler),
     ], compress_response=True, rpool=rpool,
         debug=options.crawler_debug, fetcher=fetcher,
         vectorizer=vectorizer)
