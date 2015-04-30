@@ -57,7 +57,7 @@ function onSubmit() {
   r.onreadystatechange = function () {
     if (r.readyState != 4 || r.status != 200) return;
       console.log(r.responseText);
-      document.locacation = JSON.parse(r.responseText)["url"];
+      document.location = JSON.parse(r.responseText)["url"];
     };
   r.send();
   return false;
@@ -95,7 +95,8 @@ function onSubmit() {
 	    document.getElementById("logoname").className = "logo_rotate";
 	    // wait to paste finish
 	    setTimeout(function() {
-	    	document.forms["search"].submit();
+	    	//document.forms["search"].submit();
+		onSubmit();
 	    }, 100);
 
 	});
